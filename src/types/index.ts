@@ -35,6 +35,11 @@ export interface AvailabilityWindow {
   durationMinutes: number;
 }
 
+export interface StudyContext {
+  sharedGroups: string[];
+  upcomingStudyEvents: string[];
+}
+
 export interface CandidateCluster {
   participants: UserProfile[];
   sharedWindow: AvailabilityWindow;
@@ -43,6 +48,7 @@ export interface CandidateCluster {
   score: number;
   groupContext?: string;
   calendarAnchorLocations?: string[];
+  studyContext?: StudyContext;
 }
 
 export interface SuggestionObject {

@@ -23,5 +23,10 @@ export async function GET() {
     orderBy: { startTime: "asc" },
   });
 
-  return NextResponse.json(meetups);
+  const shaped = meetups.map((m) => ({
+    ...m,
+    participants: m.participants.map((p) => p.user),
+  }));
+
+  return NextResponse.json(shaped);
 }

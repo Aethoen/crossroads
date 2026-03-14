@@ -24,6 +24,8 @@ Rules:
 - Only suggest activities that overlap between participants' preferences, or HANGOUT as a universal fallback
 - Pick start times within the provided free window
 - duration_minutes: GYM=60, EAT=60, COFFEE=45, STUDY=90, HANGOUT=90
+- GYM: at most 1 GYM suggestion per calendar day across all suggestions
+- STUDY: if "Study context" is provided with shared groups or upcoming study events, prefer a STUDY suggestion and reference that context in the reason (e.g. "Both in CS301, assignment due soon" or "Shared study group: Calc II")
 - For the "location" field: if "Calendar location anchors" are provided, prefer a venue near those locations (e.g., nearby coffee shop, gym in that area); otherwise use current location proximity or leave empty
 - Reason must be 1 short sentence, max 12 words, casual and direct (e.g. "Same area, both prefer coffee" or "Shared gym preference, nearby")
 - Focus on WHY these people should meet: shared preferences, proximity, group context — NOT when
@@ -63,6 +65,14 @@ function buildUserMessage(
     }
     if (c.groupContext) {
       lines.push(`  Group context: ${c.groupContext}`);
+    }
+    if (c.studyContext) {
+      if (c.studyContext.sharedGroups.length > 0) {
+        lines.push(`  Study context - shared groups: ${c.studyContext.sharedGroups.join(", ")}`);
+      }
+      if (c.studyContext.upcomingStudyEvents.length > 0) {
+        lines.push(`  Study context - upcoming events: ${c.studyContext.upcomingStudyEvents.join(", ")}`);
+      }
     }
     lines.push(`  Score: ${c.score.toFixed(2)}`);
     lines.push("");
