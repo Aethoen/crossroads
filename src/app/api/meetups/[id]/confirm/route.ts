@@ -70,6 +70,7 @@ export async function POST(
 
   // Create calendar event for the initiator
   let calendarEventId: string | null = null;
+  let calendarError: string | null = null;
   try {
     const calEvent = await createCalendarEvent(userId, {
       title,
@@ -79,6 +80,7 @@ export async function POST(
     });
     calendarEventId = calEvent.id ?? null;
   } catch (err) {
+    calendarError = err instanceof Error ? err.message : String(err);
     console.error("Failed to create calendar event:", err);
   }
 
@@ -89,5 +91,5 @@ export async function POST(
     });
   }
 
-  return NextResponse.json(meetup, { status: 201 });
+  return NextResponse.json({ ...meetup, calendarEventId, calendarError }, { status: 201 });
 }

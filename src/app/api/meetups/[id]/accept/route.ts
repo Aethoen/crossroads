@@ -42,6 +42,8 @@ export async function POST(
   }
 
   // Create calendar event for this participant
+  let calendarError: string | null = null;
+  let calendarEventId: string | null = null;
   const meetup = await prisma.meetup.findUnique({ where: { id } });
   if (meetup) {
     try {
@@ -51,16 +53,18 @@ export async function POST(
         durationMinutes: meetup.durationMinutes,
         location: meetup.location,
       });
-      if (calEvent.id) {
+      calendarEventId = calEvent.id ?? null;
+      if (calendarEventId) {
         await prisma.meetupParticipant.update({
           where: { id: participant.id },
-          data: { googleCalendarEventId: calEvent.id },
+          data: { googleCalendarEventId: calendarEventId },
         });
       }
     } catch (err) {
+      calendarError = err instanceof Error ? err.message : String(err);
       console.error("Failed to create calendar event:", err);
     }
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, calendarEventId, calendarError });
 }
