@@ -55,6 +55,7 @@ model User {
   googleRefreshToken     String?   @db.Text
   calendarConnected      Boolean   @default(false)
   locationSharingEnabled Boolean   @default(false)
+  suggestionRangeDays    Int       @default(1)
 
   accounts               Account[]
   sessions               Session[]

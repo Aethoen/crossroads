@@ -15,6 +15,12 @@ export async function GET() {
 
   const userId = session.user.id;
 
+  const userSettings = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { suggestionRangeDays: true },
+  });
+  const rangeDays = userSettings?.suggestionRangeDays ?? 1;
+
   // Stale check: return cached pending suggestions if < 4h old
   const cutoff = new Date(Date.now() - CACHE_TTL_MS);
   const cached = await prisma.suggestion.findMany({
@@ -32,7 +38,7 @@ export async function GET() {
 
   // Run full pipeline
   try {
-    const clusters = await buildCandidateClusters(userId);
+    const clusters = await buildCandidateClusters(userId, rangeDays);
 
     if (clusters.length === 0) {
       return NextResponse.json({ suggestions: [], cached: false });
