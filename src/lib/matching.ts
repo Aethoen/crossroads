@@ -79,7 +79,7 @@ export async function buildCandidateClusters(
       location: true,
       activityPreferences: true,
       availabilityBlocks: {
-        where: { startTime: { gte: now }, endTime: { lte: in48h } },
+        where: { startTime: { gte: now, lte: in48h } },
         orderBy: { startTime: "asc" },
       },
       calendarEvents: {
@@ -111,7 +111,7 @@ export async function buildCandidateClusters(
           location: true,
           activityPreferences: true,
           availabilityBlocks: {
-            where: { startTime: { gte: now }, endTime: { lte: in48h } },
+            where: { startTime: { gte: now, lte: in48h } },
             orderBy: { startTime: "asc" },
           },
           calendarEvents: {
@@ -124,7 +124,7 @@ export async function buildCandidateClusters(
           location: true,
           activityPreferences: true,
           availabilityBlocks: {
-            where: { startTime: { gte: now }, endTime: { lte: in48h } },
+            where: { startTime: { gte: now, lte: in48h } },
             orderBy: { startTime: "asc" },
           },
           calendarEvents: {
