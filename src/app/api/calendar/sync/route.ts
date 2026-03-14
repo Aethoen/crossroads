@@ -33,6 +33,7 @@ export async function POST() {
           title: event.summary ?? "Busy",
           startTime,
           endTime,
+          location: event.location ?? null,
         },
         create: {
           userId,
@@ -40,6 +41,7 @@ export async function POST() {
           title: event.summary ?? "Busy",
           startTime,
           endTime,
+          location: event.location ?? null,
         },
       });
     }
