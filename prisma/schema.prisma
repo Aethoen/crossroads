@@ -208,6 +208,18 @@ model Suggestion {
   meetup  Meetup?
 }
 
+enum MeetupStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum ParticipantStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
 model Meetup {
   id              String       @id @default(cuid())
   suggestionId    String       @unique
@@ -216,6 +228,7 @@ model Meetup {
   startTime       DateTime
   durationMinutes Int
   location        String?
+  status          MeetupStatus @default(PENDING)
   createdAt       DateTime     @default(now())
 
   suggestion   Suggestion          @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
@@ -223,10 +236,11 @@ model Meetup {
 }
 
 model MeetupParticipant {
-  id                    String  @id @default(cuid())
+  id                    String            @id @default(cuid())
   meetupId              String
   userId                String
   googleCalendarEventId String?
+  status                ParticipantStatus @default(PENDING)
 
   meetup Meetup @relation(fields: [meetupId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

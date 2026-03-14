@@ -9,12 +9,16 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const userId = session.user.id;
+
   const meetups = await prisma.meetup.findMany({
     where: {
-      participants: { some: { userId: session.user.id } },
+      status: { not: "CANCELLED" },
+      participants: { some: { userId, status: { not: "DECLINED" } } },
     },
     include: {
       participants: {
+        where: { status: { not: "DECLINED" } },
         include: {
           user: { select: { id: true, name: true, email: true, image: true, calendarConnected: true, locationSharingEnabled: true } },
         },
@@ -23,10 +27,20 @@ export async function GET() {
     orderBy: { startTime: "asc" },
   });
 
-  const shaped = meetups.map((m) => ({
-    ...m,
-    participants: m.participants.map((p) => p.user),
-  }));
+  const shaped = meetups.map((m) => {
+    const myParticipant = m.participants.find((p) => p.userId === userId);
+    return {
+      id: m.id,
+      title: m.title,
+      activity: m.activity,
+      startTime: m.startTime,
+      durationMinutes: m.durationMinutes,
+      location: m.location,
+      status: m.status,
+      myStatus: myParticipant?.status ?? "PENDING",
+      participants: m.participants.map((p) => p.user),
+    };
+  });
 
   return NextResponse.json(shaped);
 }

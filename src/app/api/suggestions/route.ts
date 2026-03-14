@@ -39,14 +39,12 @@ export async function GET() {
   // Run full pipeline
   try {
     const clusters = await buildCandidateClusters(userId, rangeDays);
-    console.log(`[suggestions] clusters=${clusters.length}, rangeDays=${rangeDays}`);
 
     if (clusters.length === 0) {
       return NextResponse.json({ suggestions: [], cached: false });
     }
 
     const rawSuggestions = await generateSuggestions(clusters, userId);
-    console.log(`[suggestions] raw=${rawSuggestions.length}, filtered=${rawSuggestions.filter(s => s.participants.includes(userId)).length}`);
 
     // Enforce: at most 1 GYM suggestion per calendar day
     const gymDays = new Set<string>();

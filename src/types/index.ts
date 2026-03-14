@@ -1,6 +1,6 @@
-import { ActivityType, FriendshipStatus, GroupType, SuggestionStatus } from "@prisma/client";
+import { ActivityType, FriendshipStatus, GroupType, MeetupStatus, ParticipantStatus, SuggestionStatus } from "@prisma/client";
 
-export type { ActivityType, FriendshipStatus, GroupType, SuggestionStatus };
+export type { ActivityType, FriendshipStatus, GroupType, MeetupStatus, ParticipantStatus, SuggestionStatus };
 
 export interface UserProfile {
   id: string;
@@ -81,5 +81,7 @@ export interface MeetupWithParticipants {
   startTime: Date;
   durationMinutes: number;
   location: string | null;
+  status: MeetupStatus;
+  myStatus: ParticipantStatus;
   participants: UserProfile[];
 }
