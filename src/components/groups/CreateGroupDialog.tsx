@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 
@@ -33,7 +34,7 @@ export function CreateGroupDialog({ onCreate }: CreateGroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
-        <Plus className="h-4 w-4 mr-2" />
+        <Plus className="mr-2 h-4 w-4" strokeWidth={2.5} />
         New Group
       </DialogTrigger>
       <DialogContent>
@@ -43,12 +44,11 @@ export function CreateGroupDialog({ onCreate }: CreateGroupDialogProps) {
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-1.5">
             <Label htmlFor="name">Group name</Label>
-            <input
+            <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="CS246 Study Group"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               required
             />
           </div>

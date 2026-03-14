@@ -61,7 +61,7 @@ export function SuggestionFeed() {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-48 rounded-xl bg-muted animate-pulse" />
+          <div key={i} className="paper-panel-soft h-56 animate-pulse" />
         ))}
       </div>
     );
@@ -70,7 +70,7 @@ export function SuggestionFeed() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Suggestions</h2>
+        <h2 className="section-title text-3xl font-semibold">Suggestions</h2>
         <Button
           variant="outline"
           size="sm"
@@ -83,15 +83,15 @@ export function SuggestionFeed() {
       </div>
 
       {error && (
-        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
+        <div className="paper-panel-soft bg-destructive/10 p-3 text-base text-destructive">
           {error}
         </div>
       )}
 
       {suggestions.length === 0 && !error && (
-        <div className="text-center py-12 text-muted-foreground space-y-2">
-          <p className="font-medium">No suggestions yet</p>
-          <p className="text-sm">
+        <div className="paper-panel-soft space-y-2 py-12 text-center text-muted-foreground">
+          <p className="section-title text-3xl font-medium text-foreground">No suggestions yet</p>
+          <p className="mx-auto max-w-xl text-base">
             Add friends, connect your calendar, and share your location to get
             personalized meetup suggestions.
           </p>

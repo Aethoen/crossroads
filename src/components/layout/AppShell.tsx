@@ -17,16 +17,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (status === "loading" || !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="page-shell min-h-screen flex items-center justify-center px-6">
+        <div className="paper-note flex items-center gap-3 px-6 py-5">
+          <div className="h-6 w-6 animate-spin rounded-full border-[3px] border-border border-t-transparent" />
+          <p className="text-lg">Gathering your plans...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="page-shell min-h-screen bg-background">
       <NavBar />
-      <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
+      <main className="relative z-10 mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-10">
+        {children}
+      </main>
     </div>
   );
 }

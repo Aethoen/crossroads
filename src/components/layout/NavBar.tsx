@@ -20,13 +20,18 @@ export function NavBar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="border-b bg-background">
-      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="font-bold text-lg">
-            Crossroads
+    <nav className="relative z-10 border-b-2 border-dashed border-border/65 bg-[rgb(253_251_247_/_0.88)] backdrop-blur-sm">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
+          <Link href="/dashboard" className="group inline-flex w-fit items-center gap-3">
+            <span className="ink-icon h-10 w-10 -rotate-6">
+              ✦
+            </span>
+            <span className="section-title text-3xl font-bold tracking-tight">
+              Crossroads
+            </span>
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-2">
             {navItems.map(({ href, label, icon: Icon }) => (
               <Link key={href} href={href}>
                 <Button
@@ -34,18 +39,24 @@ export function NavBar() {
                   size="sm"
                   className={cn(
                     "gap-2",
-                    pathname === href && "bg-muted font-medium"
+                    pathname === href && "bg-secondary font-medium text-foreground"
                   )}
                 >
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden sm:inline">{label}</span>
+                  <Icon className="h-4 w-4" strokeWidth={2.5} />
+                  <span>{label}</span>
                 </Button>
               </Link>
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Avatar className="h-8 w-8">
+        <div className="flex items-center gap-3 self-end md:self-auto">
+          <div className="paper-panel-soft hidden px-3 py-2 md:block">
+            <p className="text-sm leading-none text-muted-foreground">Signed in as</p>
+            <p className="section-title text-lg leading-none">
+              {session?.user?.name?.split(" ")[0] ?? "Friend"}
+            </p>
+          </div>
+          <Avatar className="h-10 w-10">
             <AvatarImage src={session?.user?.image ?? ""} />
             <AvatarFallback>
               {session?.user?.name?.slice(0, 2).toUpperCase() ?? "??"}
@@ -56,7 +67,7 @@ export function NavBar() {
             size="sm"
             onClick={() => signOut({ callbackUrl: "/" })}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4" strokeWidth={2.5} />
           </Button>
         </div>
       </div>
