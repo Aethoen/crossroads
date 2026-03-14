@@ -15,6 +15,27 @@ export class GoogleCalendarScopeError extends Error {
   }
 }
 
+function isInsufficientScopeError(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+
+  const maybeError = error as {
+    code?: number;
+    status?: number;
+    message?: string;
+    response?: { data?: { error?: { message?: string } } };
+  };
+
+  const message =
+    maybeError.message ??
+    maybeError.response?.data?.error?.message ??
+    "";
+
+  return (
+    (maybeError.code === 403 || maybeError.status === 403) &&
+    /insufficient authentication scopes/i.test(message)
+  );
+}
+
 function parseScopeList(scope: string | null | undefined) {
   return new Set(
     (scope ?? "")
@@ -72,16 +93,23 @@ export async function fetchCalendarEvents(userId: string) {
   const now = new Date();
   const twoWeeksLater = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
 
-  const response = await calendar.events.list({
-    calendarId: "primary",
-    timeMin: now.toISOString(),
-    timeMax: twoWeeksLater.toISOString(),
-    singleEvents: true,
-    orderBy: "startTime",
-    maxResults: 200,
-  });
+  try {
+    const response = await calendar.events.list({
+      calendarId: "primary",
+      timeMin: now.toISOString(),
+      timeMax: twoWeeksLater.toISOString(),
+      singleEvents: true,
+      orderBy: "startTime",
+      maxResults: 200,
+    });
 
-  return response.data.items ?? [];
+    return response.data.items ?? [];
+  } catch (error) {
+    if (isInsufficientScopeError(error)) {
+      throw new GoogleCalendarScopeError([GOOGLE_CALENDAR_READ_SCOPE], []);
+    }
+    throw error;
+  }
 }
 
 export async function createCalendarEvent(
@@ -97,20 +125,34 @@ export async function createCalendarEvent(
 
   const endTime = new Date(event.startTime.getTime() + event.durationMinutes * 60 * 1000);
 
-  const result = await calendar.events.insert({
-    calendarId: "primary",
-    requestBody: {
-      summary: event.title,
-      location: event.location ?? undefined,
-      start: { dateTime: event.startTime.toISOString() },
-      end: { dateTime: endTime.toISOString() },
-    },
-  });
+  try {
+    const result = await calendar.events.insert({
+      calendarId: "primary",
+      requestBody: {
+        summary: event.title,
+        location: event.location ?? undefined,
+        start: { dateTime: event.startTime.toISOString() },
+        end: { dateTime: endTime.toISOString() },
+      },
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isInsufficientScopeError(error)) {
+      throw new GoogleCalendarScopeError([GOOGLE_CALENDAR_EVENTS_SCOPE], []);
+    }
+    throw error;
+  }
 }
 
 export async function deleteCalendarEvent(userId: string, eventId: string) {
   const calendar = await getCalendarClient(userId, [GOOGLE_CALENDAR_EVENTS_SCOPE]);
-  await calendar.events.delete({ calendarId: "primary", eventId });
+  try {
+    await calendar.events.delete({ calendarId: "primary", eventId });
+  } catch (error) {
+    if (isInsufficientScopeError(error)) {
+      throw new GoogleCalendarScopeError([GOOGLE_CALENDAR_EVENTS_SCOPE], []);
+    }
+    throw error;
+  }
 }
