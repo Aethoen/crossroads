@@ -5,6 +5,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { CalendarConnect } from "@/components/settings/CalendarConnect";
 import { LocationSettings } from "@/components/settings/LocationSettings";
 import { ActivityPreferences } from "@/components/settings/ActivityPreferences";
+import { SuggestionRangeSettings } from "@/components/settings/SuggestionRangeSettings";
 import { prisma } from "@/lib/prisma";
 
 export default async function SettingsPage() {
@@ -29,6 +30,7 @@ export default async function SettingsPage() {
         <CalendarConnect connected={user?.calendarConnected ?? false} />
         <LocationSettings enabled={user?.locationSharingEnabled ?? false} />
         <ActivityPreferences />
+        <SuggestionRangeSettings />
       </div>
     </AppShell>
   );

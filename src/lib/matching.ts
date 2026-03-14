@@ -64,10 +64,12 @@ function nearestLocationToWindow(
 }
 
 export async function buildCandidateClusters(
-  userId: string
+  userId: string,
+  rangeDays: number = 1
 ): Promise<CandidateCluster[]> {
   const now = new Date();
-  const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const rangeMs = rangeDays * 24 * 60 * 60 * 1000;
+  const in48h = new Date(now.getTime() + rangeMs);
   const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   // Load current user data
