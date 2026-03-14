@@ -41,7 +41,15 @@ export async function GET() {
     const clusters = await buildCandidateClusters(userId, rangeDays);
 
     if (clusters.length === 0) {
-      return NextResponse.json({ suggestions: [], cached: false });
+      // Gather diagnostic info
+      const friendCount = await prisma.friendship.count({
+        where: { status: "ACCEPTED", OR: [{ requesterId: userId }, { addresseeId: userId }] },
+      });
+      const myBlockCount = await prisma.availabilityBlock.count({
+        where: { userId, startTime: { gte: new Date() } },
+      });
+      console.log(`[suggestions] No clusters for ${userId}: ${friendCount} friends, ${myBlockCount} own blocks`);
+      return NextResponse.json({ suggestions: [], cached: false, debug: { friendCount, myBlockCount } });
     }
 
     const rawSuggestions = await generateSuggestions(clusters, userId);
