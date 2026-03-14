@@ -7,6 +7,19 @@ import { generateSuggestions } from "@/lib/claude";
 
 const CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
 
+async function withProfiles(suggestions: { participantIds: string[]; [key: string]: unknown }[]) {
+  const ids = [...new Set(suggestions.flatMap((s) => s.participantIds))];
+  const users = await prisma.user.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, name: true, email: true, image: true, calendarConnected: true, locationSharingEnabled: true },
+  });
+  const byId = Object.fromEntries(users.map((u) => [u.id, u]));
+  return suggestions.map((s) => ({
+    ...s,
+    participantProfiles: s.participantIds.map((id) => byId[id]).filter(Boolean),
+  }));
+}
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -33,7 +46,7 @@ export async function GET() {
   });
 
   if (cached.length > 0) {
-    return NextResponse.json({ suggestions: cached, cached: true });
+    return NextResponse.json({ suggestions: await withProfiles(cached), cached: true });
   }
 
   // Run full pipeline
@@ -74,7 +87,7 @@ export async function GET() {
       )
     );
 
-    return NextResponse.json({ suggestions: created, cached: false });
+    return NextResponse.json({ suggestions: await withProfiles(created), cached: false });
   } catch (error) {
     console.error("Suggestions pipeline error:", error);
     return NextResponse.json({ error: "Failed to generate suggestions" }, { status: 500 });
