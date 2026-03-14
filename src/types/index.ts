@@ -42,6 +42,7 @@ export interface CandidateCluster {
   proximityLabel: "same_area" | "nearby" | "far" | "unknown";
   score: number;
   groupContext?: string;
+  calendarAnchorLocations?: string[];
 }
 
 export interface SuggestionObject {
