@@ -86,5 +86,12 @@ export async function POST(
     console.error("Failed to create calendar event:", err);
   }
 
+  if (calendarEventId) {
+    await prisma.meetupParticipant.updateMany({
+      where: { meetupId: meetup.id, userId: session.user.id },
+      data: { googleCalendarEventId: calendarEventId },
+    });
+  }
+
   return NextResponse.json({ suggestion: updatedSuggestion, meetup, calendarEventId });
 }
