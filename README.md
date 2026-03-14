@@ -6,10 +6,10 @@ AI-powered social coordination. Friends connect Google Calendar and optionally s
 
 - **Next.js 16** (App Router) + TypeScript
 - **Shadcn/ui** + Tailwind CSS
-- **NextAuth v4** — Google OAuth with `calendar.readonly` scope
+- **NextAuth v4** — Google OAuth with `calendar.readonly` + `calendar.events` scopes
 - **Prisma 7** + PostgreSQL (`@prisma/adapter-pg`)
 - **Claude API** (`claude-sonnet-4-6`) via `@anthropic-ai/sdk`
-- **Google Calendar API** (readonly, last 14 days)
+- **Google Calendar API** (read for sync, write for confirmed meetups)
 
 ## Setup
 
@@ -28,8 +28,9 @@ ANTHROPIC_API_KEY=...
 
 Google Cloud setup:
 - Enable **Calendar API** and **People API**
-- Add `https://www.googleapis.com/auth/calendar.readonly` to consent screen
+- Add `https://www.googleapis.com/auth/calendar.readonly` and `https://www.googleapis.com/auth/calendar.events` to consent screen
 - Add redirect URI: `http://localhost:3000/api/auth/callback/google`
+- If you add calendar scopes after users have already signed in, they must reconnect Google once so their stored token is re-issued with the new permissions.
 
 ### 2. Database
 

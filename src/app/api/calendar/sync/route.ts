@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { fetchCalendarEvents } from "@/lib/google-calendar";
+import { fetchCalendarEvents, GoogleCalendarScopeError } from "@/lib/google-calendar";
 import { computeAndStoreAvailability } from "@/lib/availability";
 
 export async function POST() {
@@ -61,6 +61,17 @@ export async function POST() {
     });
   } catch (error) {
     console.error("Calendar sync error:", error);
+    if (error instanceof GoogleCalendarScopeError) {
+      return NextResponse.json(
+        {
+          error: "Google Calendar permissions need to be refreshed",
+          code: "GOOGLE_SCOPE_MISSING",
+          missingScopes: error.missingScopes,
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json({ error: "Calendar sync failed" }, { status: 500 });
   }
 }
