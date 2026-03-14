@@ -1,7 +1,14 @@
 import { ActivityType } from "@prisma/client";
 import { prisma } from "./prisma";
 import { intersectIntervals } from "./availability";
-import { CandidateCluster, UserProfile } from "@/types";
+import { CandidateCluster, StudyContext, UserProfile } from "@/types";
+
+const STUDY_KEYWORDS = /\b(assignment|homework|hw|due|exam|quiz|midterm|final|lab|lecture|class|seminar|course|tutorial|recitation|project|study)\b/i;
+const COURSE_CODE = /\b[A-Z]{2,5}\s?\d{3,4}\b/;
+
+function isStudyEvent(title: string): boolean {
+  return STUDY_KEYWORDS.test(title) || COURSE_CODE.test(title);
+}
 
 function haversineKm(
   lat1: number,
@@ -61,6 +68,7 @@ export async function buildCandidateClusters(
 ): Promise<CandidateCluster[]> {
   const now = new Date();
   const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   // Load current user data
   const currentUser = await prisma.user.findUnique({
@@ -73,11 +81,7 @@ export async function buildCandidateClusters(
         orderBy: { startTime: "asc" },
       },
       calendarEvents: {
-        where: {
-          startTime: { gte: now },
-          endTime: { lte: in48h },
-          location: { not: null },
-        },
+        where: { startTime: { gte: now }, endTime: { lte: in7d } },
       },
     },
   });
@@ -109,11 +113,7 @@ export async function buildCandidateClusters(
             orderBy: { startTime: "asc" },
           },
           calendarEvents: {
-            where: {
-              startTime: { gte: now },
-              endTime: { lte: in48h },
-              location: { not: null },
-            },
+            where: { startTime: { gte: now }, endTime: { lte: in7d } },
           },
         },
       },
@@ -126,11 +126,7 @@ export async function buildCandidateClusters(
             orderBy: { startTime: "asc" },
           },
           calendarEvents: {
-            where: {
-              startTime: { gte: now },
-              endTime: { lte: in48h },
-              location: { not: null },
-            },
+            where: { startTime: { gte: now }, endTime: { lte: in7d } },
           },
         },
       },
@@ -154,13 +150,24 @@ export async function buildCandidateClusters(
   });
 
   const groupContextMap = new Map<string, string>();
+  // Map from friendId -> names of shared STUDY groups
+  const sharedStudyGroupsMap = new Map<string, string[]>();
   for (const g of userGroups) {
     for (const m of g.members) {
       if (m.userId !== userId) {
         groupContextMap.set(m.userId, `${g.type.toLowerCase()}_group: ${g.name}`);
+        if (g.type === "STUDY") {
+          const existing = sharedStudyGroupsMap.get(m.userId) ?? [];
+          existing.push(g.name);
+          sharedStudyGroupsMap.set(m.userId, existing);
+        }
       }
     }
   }
+
+  const userStudyEventTitles = currentUser.calendarEvents
+    .filter((e) => isStudyEvent(e.title))
+    .map((e) => e.title);
 
   const currentUserActivities = new Set(
     currentUser.activityPreferences.map((p) => p.activity)
@@ -218,6 +225,20 @@ export async function buildCandidateClusters(
     if (userAnchor) calendarAnchorLocations.push(userAnchor);
     if (friendAnchor && friendAnchor !== userAnchor) calendarAnchorLocations.push(friendAnchor);
 
+    // Study context: shared STUDY groups + overlapping study-relevant calendar events
+    const friendStudyEventTitles = friend.calendarEvents
+      .filter((e) => isStudyEvent(e.title))
+      .map((e) => e.title);
+    const sharedStudyTitles = userStudyEventTitles.filter((t) =>
+      friendStudyEventTitles.includes(t)
+    );
+    const allStudyTitles = [...new Set([...userStudyEventTitles, ...friendStudyEventTitles])];
+    const sharedGroups = sharedStudyGroupsMap.get(friend.id) ?? [];
+    const studyContext: StudyContext | undefined =
+      sharedGroups.length > 0 || allStudyTitles.length > 0
+        ? { sharedGroups, upcomingStudyEvents: sharedStudyTitles.length > 0 ? sharedStudyTitles : allStudyTitles.slice(0, 3) }
+        : undefined;
+
     const friendProfile: UserProfile = {
       id: friend.id,
       name: friend.name,
@@ -239,6 +260,7 @@ export async function buildCandidateClusters(
       score,
       groupContext: groupContextMap.get(friend.id),
       calendarAnchorLocations: calendarAnchorLocations.length > 0 ? calendarAnchorLocations : undefined,
+      studyContext,
     });
   }
 

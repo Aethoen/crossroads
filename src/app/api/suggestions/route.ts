@@ -38,7 +38,17 @@ export async function GET() {
       return NextResponse.json({ suggestions: [], cached: false });
     }
 
-    const aiSuggestions = await generateSuggestions(clusters, userId);
+    const rawSuggestions = await generateSuggestions(clusters, userId);
+
+    // Enforce: at most 1 GYM suggestion per calendar day
+    const gymDays = new Set<string>();
+    const aiSuggestions = rawSuggestions.filter((s) => {
+      if (s.activity !== "GYM") return true;
+      const day = new Date(s.start).toISOString().slice(0, 10);
+      if (gymDays.has(day)) return false;
+      gymDays.add(day);
+      return true;
+    });
 
     // Persist suggestions
     const created = await prisma.$transaction(
