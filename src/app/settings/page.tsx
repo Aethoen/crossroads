@@ -18,10 +18,11 @@ export default async function SettingsPage() {
 
   return (
     <AppShell>
-      <div className="space-y-6 max-w-xl">
+      <div className="max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="paper-note inline-flex w-fit px-4 py-2 text-lg">Toolbox</p>
+          <h1 className="mt-4 text-4xl font-bold">Settings</h1>
+          <p className="mt-2 text-xl text-muted-foreground">
             Configure your connections and preferences.
           </p>
         </div>

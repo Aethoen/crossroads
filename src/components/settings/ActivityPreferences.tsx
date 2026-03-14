@@ -33,7 +33,11 @@ export function ActivityPreferences() {
   function toggle(activity: ActivityType) {
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(activity) ? next.delete(activity) : next.add(activity);
+      if (next.has(activity)) {
+        next.delete(activity);
+      } else {
+        next.add(activity);
+      }
       return next;
     });
     setSaved(false);
@@ -51,22 +55,22 @@ export function ActivityPreferences() {
   }
 
   return (
-    <Card>
+    <Card className="-rotate-[0.3deg]">
       <CardHeader>
-        <CardTitle className="text-base">Activity Preferences</CardTitle>
+        <CardTitle className="text-2xl">Activity Preferences</CardTitle>
         <CardDescription>
           Select activities you enjoy so Claude can suggest relevant meetups.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {loading ? (
-          <div className="h-24 bg-muted animate-pulse rounded-lg" />
+          <div className="paper-panel-soft h-28 animate-pulse" />
         ) : (
           <>
             <div className="space-y-3">
               {activities.map(({ value, label, emoji }) => (
-                <div key={value} className="flex items-center justify-between">
-                  <Label className="flex items-center gap-2 cursor-pointer">
+                <div key={value} className="paper-panel-soft flex items-center justify-between px-4 py-3">
+                  <Label className="flex cursor-pointer items-center gap-2 text-lg">
                     <span>{emoji}</span>
                     <span>{label}</span>
                   </Label>

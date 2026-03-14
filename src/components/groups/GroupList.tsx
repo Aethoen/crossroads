@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { ChevronDown, ChevronUp, UserPlus, Trash2 } from "lucide-react";
 import { GroupWithMembers } from "@/types";
 import { Label } from "@/components/ui/label";
@@ -30,21 +31,25 @@ export function GroupList({
   function toggleExpand(id: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   }
 
   if (groups.length === 0) {
     return (
-      <p className="text-center text-muted-foreground py-8">
+      <p className="paper-panel-soft px-4 py-8 text-center text-lg text-muted-foreground">
         No groups yet. Create one to coordinate with multiple friends!
       </p>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {groups.map((g) => {
         const isOwner = g.members.some(
           (m) => m.user.id === currentUserId && m.role === "OWNER"
@@ -52,58 +57,57 @@ export function GroupList({
         const isExpanded = expanded.has(g.id);
 
         return (
-          <Card key={g.id}>
+          <Card key={g.id} className={isExpanded ? "rotate-[0.4deg]" : "-rotate-[0.3deg]"}>
             <CardHeader
-              className="cursor-pointer py-3"
+              className="cursor-pointer py-4"
               onClick={() => toggleExpand(g.id)}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-base">{g.name}</CardTitle>
-                  <Badge variant="secondary" className="text-xs">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  <CardTitle className="text-2xl">{g.name}</CardTitle>
+                  <Badge variant="secondary">
                     {g.type}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-base text-muted-foreground">
                     {g.members.length} member{g.members.length !== 1 ? "s" : ""}
                   </span>
                 </div>
                 {isExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
                 )}
               </div>
             </CardHeader>
 
             {isExpanded && (
-              <CardContent className="pt-0 space-y-3">
+              <CardContent className="space-y-4 pt-0">
                 <div className="space-y-2">
                   {g.members.map((m) => (
                     <div
                       key={m.id}
-                      className="flex items-center justify-between"
+                      className="paper-panel-soft flex flex-col gap-3 px-3 py-3 md:flex-row md:items-center md:justify-between"
                     >
                       <div className="flex items-center gap-2">
-                        <Avatar className="h-7 w-7">
+                        <Avatar className="h-9 w-9">
                           <AvatarImage src={m.user.image ?? ""} />
-                          <AvatarFallback className="text-xs">
+                          <AvatarFallback className="text-sm">
                             {m.user.name?.slice(0, 2).toUpperCase() ?? "??"}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">
+                        <span className="text-lg">
                           {m.user.name ?? m.user.email}
                         </span>
                         {m.role === "OWNER" && (
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline">
                             Owner
                           </Badge>
                         )}
                       </div>
                       {isOwner && m.user.id !== currentUserId && (
                         <Button
-                          variant="ghost"
+                          variant="destructive"
                           size="sm"
-                          className="text-destructive hover:text-destructive"
                           onClick={() => onRemoveMember(g.id, m.user.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -114,10 +118,10 @@ export function GroupList({
                 </div>
 
                 {isOwner && (
-                  <div className="flex gap-2 pt-2 border-t">
+                  <div className="sketch-divider flex flex-col gap-3 pt-4 md:flex-row">
                     <div className="flex-1 space-y-1">
-                      <Label className="text-xs">Add member by email</Label>
-                      <input
+                      <Label>Add member by email</Label>
+                      <Input
                         value={addEmail[g.id] ?? ""}
                         onChange={(e) =>
                           setAddEmail((prev) => ({
@@ -126,7 +130,6 @@ export function GroupList({
                           }))
                         }
                         placeholder="friend@example.com"
-                        className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       />
                     </div>
                     <div className="flex items-end gap-1">
@@ -141,12 +144,11 @@ export function GroupList({
                           }
                         }}
                       >
-                        <UserPlus className="h-4 w-4" />
+                        <UserPlus className="h-4 w-4" strokeWidth={2.5} />
                       </Button>
                       <Button
                         size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
+                        variant="destructive"
                         onClick={() => onDeleteGroup(g.id)}
                       >
                         <Trash2 className="h-4 w-4" />

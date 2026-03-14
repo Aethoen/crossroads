@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { UserPlus } from "lucide-react";
 
 interface AddFriendDialogProps {
@@ -34,7 +35,7 @@ export function AddFriendDialog({ onAdd }: AddFriendDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
-        <UserPlus className="h-4 w-4 mr-2" />
+        <UserPlus className="mr-2 h-4 w-4" strokeWidth={2.5} />
         Add Friend
       </DialogTrigger>
       <DialogContent>
@@ -44,17 +45,16 @@ export function AddFriendDialog({ onAdd }: AddFriendDialogProps) {
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-1.5">
             <Label htmlFor="email">Email address</Label>
-            <input
+            <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="friend@example.com"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               required
             />
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p className="paper-panel-soft px-3 py-2 text-base text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Sending..." : "Send Request"}
           </Button>

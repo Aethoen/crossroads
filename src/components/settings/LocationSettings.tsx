@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { MapPin, Navigation } from "lucide-react";
 
 interface LocationSettingsProps {
@@ -48,12 +49,14 @@ export function LocationSettings({ enabled: initialEnabled }: LocationSettingsPr
   }
 
   return (
-    <Card>
+    <Card className="rotate-[0.5deg]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            <CardTitle className="text-base">Location Sharing</CardTitle>
+            <span className="ink-icon h-11 w-11">
+              <MapPin className="h-5 w-5" strokeWidth={2.5} />
+            </span>
+            <CardTitle className="text-2xl">Location Sharing</CardTitle>
           </div>
           <Switch
             checked={enabled}
@@ -69,15 +72,14 @@ export function LocationSettings({ enabled: initialEnabled }: LocationSettingsPr
         <CardContent className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="location-label">Label (optional)</Label>
-            <input
+            <Input
               id="location-label"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder="e.g. Campus, Home, Downtown"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
-          {status && <p className="text-sm text-muted-foreground">{status}</p>}
+          {status && <p className="paper-panel-soft px-3 py-2 text-base text-muted-foreground">{status}</p>}
           <Button onClick={handleDetectLocation} disabled={loading} size="sm">
             <Navigation className="h-4 w-4 mr-2" />
             {loading ? "Detecting..." : "Use Current Location"}

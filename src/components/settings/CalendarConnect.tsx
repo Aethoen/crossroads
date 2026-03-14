@@ -30,16 +30,18 @@ export function CalendarConnect({ connected: initialConnected }: CalendarConnect
   }
 
   return (
-    <Card>
+    <Card className="-rotate-[0.4deg]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            <CardTitle className="text-base">Google Calendar</CardTitle>
+            <span className="ink-icon h-11 w-11">
+              <Calendar className="h-5 w-5" strokeWidth={2.5} />
+            </span>
+            <CardTitle className="text-2xl">Google Calendar</CardTitle>
           </div>
           {connected ? (
-            <Badge className="bg-green-100 text-green-800">
-              <CheckCircle className="h-3 w-3 mr-1" />
+            <Badge className="bg-[#d8f0d2] text-[#284f1b]">
+              <CheckCircle className="mr-1 h-3 w-3" />
               Connected
             </Badge>
           ) : (
@@ -47,12 +49,12 @@ export function CalendarConnect({ connected: initialConnected }: CalendarConnect
           )}
         </div>
         <CardDescription>
-          Sync your calendar so Crossroads knows when you're free.
+          Sync your calendar so Crossroads knows when you&apos;re free.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {lastSync && (
-          <p className="text-sm text-muted-foreground">{lastSync}</p>
+          <p className="paper-panel-soft px-3 py-2 text-base text-muted-foreground">{lastSync}</p>
         )}
         <Button onClick={handleSync} disabled={syncing} size="sm">
           <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />

@@ -32,21 +32,21 @@ export function FriendList({
 
   function FriendItem({ f, actions }: { f: FriendWithProfile; actions?: React.ReactNode }) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-between py-3 px-4">
+      <Card className="transition-transform duration-100 hover:rotate-[0.5deg]">
+        <CardContent className="flex flex-col justify-between gap-4 px-4 py-4 md:flex-row md:items-center">
           <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9">
+            <Avatar className="h-11 w-11">
               <AvatarImage src={f.friend.image ?? ""} />
               <AvatarFallback>
                 {f.friend.name?.slice(0, 2).toUpperCase() ?? "??"}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium">{f.friend.name ?? f.friend.email}</p>
-              <p className="text-xs text-muted-foreground">{f.friend.email}</p>
+              <p className="section-title text-2xl">{f.friend.name ?? f.friend.email}</p>
+              <p className="text-base text-muted-foreground">{f.friend.email}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">{actions}</div>
+          <div className="flex items-center gap-2 self-end md:self-auto">{actions}</div>
         </CardContent>
       </Card>
     );
@@ -56,7 +56,7 @@ export function FriendList({
     <div className="space-y-6">
       {pending.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+          <h3 className="section-title text-2xl text-muted-foreground">
             Pending Requests
           </h3>
           {pending.map((f) => (
@@ -88,7 +88,7 @@ export function FriendList({
 
       {sent.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+          <h3 className="section-title text-2xl text-muted-foreground">
             Sent
           </h3>
           {sent.map((f) => (
@@ -96,7 +96,7 @@ export function FriendList({
               key={f.id}
               f={f}
               actions={
-                <Badge variant="secondary" className="text-xs">Pending</Badge>
+                <Badge variant="secondary">Pending</Badge>
               }
             />
           ))}
@@ -105,7 +105,7 @@ export function FriendList({
 
       {accepted.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+          <h3 className="section-title text-2xl text-muted-foreground">
             Friends
           </h3>
           {accepted.map((f) => (
@@ -115,8 +115,7 @@ export function FriendList({
               actions={
                 <Button
                   size="sm"
-                  variant="ghost"
-                  className="text-destructive hover:text-destructive"
+                  variant="destructive"
                   onClick={() => onRemove(f.id)}
                 >
                   <X className="h-4 w-4" />
@@ -128,7 +127,7 @@ export function FriendList({
       )}
 
       {friends.length === 0 && (
-        <p className="text-center text-muted-foreground py-8">
+        <p className="paper-panel-soft px-4 py-8 text-center text-lg text-muted-foreground">
           No friends yet. Add some to get started!
         </p>
       )}
