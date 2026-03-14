@@ -54,3 +54,29 @@ export async function fetchCalendarEvents(userId: string) {
 
   return response.data.items ?? [];
 }
+
+export async function createCalendarEvent(
+  userId: string,
+  event: {
+    title: string;
+    startTime: Date;
+    durationMinutes: number;
+    location?: string | null;
+  }
+) {
+  const calendar = await getCalendarClient(userId);
+
+  const endTime = new Date(event.startTime.getTime() + event.durationMinutes * 60 * 1000);
+
+  const result = await calendar.events.insert({
+    calendarId: "primary",
+    requestBody: {
+      summary: event.title,
+      location: event.location ?? undefined,
+      start: { dateTime: event.startTime.toISOString() },
+      end: { dateTime: endTime.toISOString() },
+    },
+  });
+
+  return result.data;
+}
