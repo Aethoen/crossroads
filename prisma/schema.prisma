@@ -1,0 +1,233 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state             String?
+  refresh_token_expires_in  Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id                     String    @id @default(cuid())
+  name                   String?
+  email                  String?   @unique
+  emailVerified          DateTime?
+  image                  String?
+  googleAccessToken      String?   @db.Text
+  googleRefreshToken     String?   @db.Text
+  calendarConnected      Boolean   @default(false)
+  locationSharingEnabled Boolean   @default(false)
+
+  accounts               Account[]
+  sessions               Session[]
+  calendarEvents         CalendarEvent[]
+  availabilityBlocks     AvailabilityBlock[]
+  location               UserLocation?
+  activityPreferences    ActivityPreference[]
+  sentFriendRequests     Friendship[]         @relation("FriendshipRequester")
+  receivedFriendRequests Friendship[]         @relation("FriendshipAddressee")
+  groupMemberships       GroupMember[]
+  suggestions            Suggestion[]
+  meetupParticipants     MeetupParticipant[]
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  requester User @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+}
+
+enum GroupType {
+  STUDY
+  SOCIAL
+  FITNESS
+  WORK
+  OTHER
+}
+
+model Group {
+  id        String    @id @default(cuid())
+  name      String
+  type      GroupType @default(SOCIAL)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  members GroupMember[]
+}
+
+enum GroupRole {
+  OWNER
+  MEMBER
+}
+
+model GroupMember {
+  id       String    @id @default(cuid())
+  groupId  String
+  userId   String
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model CalendarEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  googleId  String
+  title     String
+  startTime DateTime
+  endTime   DateTime
+  location  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, googleId])
+}
+
+model AvailabilityBlock {
+  id        String   @id @default(cuid())
+  userId    String
+  startTime DateTime
+  endTime   DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startTime])
+}
+
+model UserLocation {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  latitude  Float
+  longitude Float
+  label     String?
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ActivityType {
+  GYM
+  EAT
+  STUDY
+  HANGOUT
+  COFFEE
+}
+
+model ActivityPreference {
+  id       String       @id @default(cuid())
+  userId   String
+  activity ActivityType
+  weight   Float        @default(1.0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activity])
+}
+
+enum SuggestionStatus {
+  PENDING
+  CONFIRMED
+  SKIPPED
+}
+
+model Suggestion {
+  id              String           @id @default(cuid())
+  forUserId       String
+  activity        ActivityType
+  participantIds  String[]
+  startTime       DateTime
+  durationMinutes Int
+  location        String?
+  reason          String
+  confidence      Float
+  status          SuggestionStatus @default(PENDING)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  forUser User    @relation(fields: [forUserId], references: [id], onDelete: Cascade)
+  meetup  Meetup?
+}
+
+model Meetup {
+  id              String       @id @default(cuid())
+  suggestionId    String       @unique
+  title           String
+  activity        ActivityType
+  startTime       DateTime
+  durationMinutes Int
+  location        String?
+  createdAt       DateTime     @default(now())
+
+  suggestion   Suggestion          @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  participants MeetupParticipant[]
+}
+
+model MeetupParticipant {
+  id       String @id @default(cuid())
+  meetupId String
+  userId   String
+
+  meetup Meetup @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetupId, userId])
+}
