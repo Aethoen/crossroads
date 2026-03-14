@@ -80,3 +80,8 @@ export async function createCalendarEvent(
 
   return result.data;
 }
+
+export async function deleteCalendarEvent(userId: string, eventId: string) {
+  const calendar = await getCalendarClient(userId);
+  await calendar.events.delete({ calendarId: "primary", eventId });
+}

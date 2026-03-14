@@ -223,9 +223,10 @@ model Meetup {
 }
 
 model MeetupParticipant {
-  id       String @id @default(cuid())
-  meetupId String
-  userId   String
+  id                    String  @id @default(cuid())
+  meetupId              String
+  userId                String
+  googleCalendarEventId String?
 
   meetup Meetup @relation(fields: [meetupId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

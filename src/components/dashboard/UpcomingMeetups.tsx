@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Clock, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, MapPin, LogOut } from "lucide-react";
 import { MeetupWithParticipants } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,7 @@ function formatTime(date: Date): string {
 export function UpcomingMeetups() {
   const [meetups, setMeetups] = useState<MeetupWithParticipants[]>([]);
   const [loading, setLoading] = useState(true);
+  const [leaving, setLeaving] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/meetups")
@@ -36,6 +38,18 @@ export function UpcomingMeetups() {
       .then((data) => setMeetups(data))
       .finally(() => setLoading(false));
   }, []);
+
+  async function leaveMeetup(meetupId: string) {
+    setLeaving(meetupId);
+    try {
+      const res = await fetch(`/api/meetups/${meetupId}`, { method: "DELETE" });
+      if (res.ok) {
+        setMeetups((prev) => prev.filter((m) => m.id !== meetupId));
+      }
+    } finally {
+      setLeaving(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -54,9 +68,21 @@ export function UpcomingMeetups() {
             <CardHeader className="py-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl">{meetup.title}</CardTitle>
-                <Badge className={cn(activityColors[meetup.activity])}>
-                  {meetup.activity}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge className={cn(activityColors[meetup.activity])}>
+                    {meetup.activity}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                    disabled={leaving === meetup.id}
+                    onClick={() => leaveMeetup(meetup.id)}
+                    title="Leave meetup"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="py-2 space-y-2">
