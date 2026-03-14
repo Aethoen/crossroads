@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${kalam.variable} ${patrickHand.variable} font-sans antialiased`}>
+      <body className={`${kalam.variable} ${patrickHand.variable} font-sans antialiased`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

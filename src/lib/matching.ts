@@ -179,10 +179,21 @@ export async function buildCandidateClusters(
 
   // Pairwise clusters
   for (const friend of friends) {
-    const overlaps = intersectIntervals(
-      currentUser.availabilityBlocks,
-      friend.availabilityBlocks
-    );
+    // If friend has no blocks, synthesize default 8am–11pm windows across the matching range
+    const friendBlocks =
+      friend.availabilityBlocks.length > 0
+        ? friend.availabilityBlocks
+        : Array.from({ length: rangeDays + 1 }, (_, i) => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + i);
+            const start = new Date(d);
+            start.setHours(8, 0, 0, 0);
+            const end = new Date(d);
+            end.setHours(23, 0, 0, 0);
+            return { startTime: start, endTime: end };
+          });
+
+    const overlaps = intersectIntervals(currentUser.availabilityBlocks, friendBlocks);
 
     if (overlaps.length === 0) continue;
 
