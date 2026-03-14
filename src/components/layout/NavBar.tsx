@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -24,8 +25,15 @@ export function NavBar() {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
           <Link href="/dashboard" className="group inline-flex w-fit items-center gap-3">
-            <span className="ink-icon h-10 w-10 -rotate-6">
-              ✦
+            <span className="paper-panel-soft flex h-12 w-12 -rotate-3 items-center justify-center p-2 transition-transform duration-100 group-hover:rotate-0">
+              <Image
+                src="/logo.svg"
+                alt="Crossroads logo"
+                width={32}
+                height={32}
+                className="h-full w-full object-contain"
+                priority
+              />
             </span>
             <span className="section-title text-3xl font-bold tracking-tight">
               Crossroads

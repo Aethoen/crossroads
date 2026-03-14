@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,6 +36,26 @@ export function LandingPage() {
       <div className="relative z-10 mx-auto flex max-w-6xl flex-1 flex-col justify-center px-4 py-14 md:px-6 md:py-20">
         <div className="grid items-center gap-10 md:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="paper-panel-soft flex h-18 w-18 rotate-[-4deg] items-center justify-center p-3 md:h-20 md:w-20">
+                <Image
+                  src="/logo.svg"
+                  alt="Crossroads logo"
+                  width={56}
+                  height={56}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
+              <div>
+                <p className="section-title text-4xl font-bold leading-none md:text-5xl">
+                  Crossroads
+                </p>
+                <p className="mt-1 text-base text-muted-foreground md:text-lg">
+                  AI-powered social coordination
+                </p>
+              </div>
+            </div>
             <div className="paper-note inline-flex items-center gap-2 px-4 py-2">
               <Sparkles className="h-5 w-5" strokeWidth={2.5} />
               <span className="text-lg">Sketching your social calendar</span>
@@ -99,7 +120,7 @@ export function LandingPage() {
               </div>
             </div>
             <div className="paper-note absolute -bottom-6 -left-2 hidden px-4 py-3 md:block">
-              <p className="text-xl">Yes, the cards wiggle on purpose.</p>
+              <p className="text-xl">Yes, coordination on purpose.</p>
             </div>
           </div>
         </div>

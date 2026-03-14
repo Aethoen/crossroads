@@ -18,6 +18,14 @@ const patrickHand = Patrick_Hand({
 export const metadata: Metadata = {
   title: "Crossroads — AI-powered social coordination",
   description: "Let AI coordinate your social life",
+  icons: {
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({
