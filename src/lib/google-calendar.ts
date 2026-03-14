@@ -1,14 +1,43 @@
 import { google } from "googleapis";
 import { prisma } from "./prisma";
+import {
+  GOOGLE_CALENDAR_EVENTS_SCOPE,
+  GOOGLE_CALENDAR_READ_SCOPE,
+} from "./google-scopes";
 
-export async function getCalendarClient(userId: string) {
+export class GoogleCalendarScopeError extends Error {
+  constructor(
+    public readonly missingScopes: string[],
+    public readonly grantedScopes: string[]
+  ) {
+    super("Google Calendar token is missing required scopes");
+    this.name = "GoogleCalendarScopeError";
+  }
+}
+
+function parseScopeList(scope: string | null | undefined) {
+  return new Set(
+    (scope ?? "")
+      .split(/\s+/)
+      .map((value) => value.trim())
+      .filter(Boolean)
+  );
+}
+
+export async function getCalendarClient(userId: string, requiredScopes: string[] = []) {
   const account = await prisma.account.findFirst({
     where: { userId, provider: "google" },
-    select: { access_token: true, refresh_token: true },
+    select: { access_token: true, refresh_token: true, scope: true },
   });
 
   if (!account?.access_token) {
     throw new Error("No Google access token for user");
+  }
+
+  const grantedScopes = parseScopeList(account.scope);
+  const missingScopes = requiredScopes.filter((scope) => !grantedScopes.has(scope));
+  if (missingScopes.length > 0) {
+    throw new GoogleCalendarScopeError(missingScopes, [...grantedScopes]);
   }
 
   const oauth2Client = new google.auth.OAuth2(
@@ -38,7 +67,7 @@ export async function getCalendarClient(userId: string) {
 }
 
 export async function fetchCalendarEvents(userId: string) {
-  const calendar = await getCalendarClient(userId);
+  const calendar = await getCalendarClient(userId, [GOOGLE_CALENDAR_READ_SCOPE]);
 
   const now = new Date();
   const twoWeeksLater = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
@@ -64,7 +93,7 @@ export async function createCalendarEvent(
     location?: string | null;
   }
 ) {
-  const calendar = await getCalendarClient(userId);
+  const calendar = await getCalendarClient(userId, [GOOGLE_CALENDAR_EVENTS_SCOPE]);
 
   const endTime = new Date(event.startTime.getTime() + event.durationMinutes * 60 * 1000);
 
@@ -82,6 +111,6 @@ export async function createCalendarEvent(
 }
 
 export async function deleteCalendarEvent(userId: string, eventId: string) {
-  const calendar = await getCalendarClient(userId);
+  const calendar = await getCalendarClient(userId, [GOOGLE_CALENDAR_EVENTS_SCOPE]);
   await calendar.events.delete({ calendarId: "primary", eventId });
 }
